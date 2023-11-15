@@ -8,55 +8,33 @@ class concept:
         self.children = []
 
     def __lt__(self, other):
-        if self.X == other.X:
-            if len(self.A) < len(other.A):
-                return True
-            elif len(self.A) > len(other.A):
-                return False
+        if(self.X == other.X):
+            if(len(self.A) == len(other.A)):
+                return self.A > other.A
             else:
-                for i, j in zip(self.A, other.A):
-                    if i == j:
-                        continue
-                    else:
-                        return i < j
+                return len(self.A) > len(other.A)
         else:
-            if len(self.X) < len(other.X):
-                return True
-            elif len(self.X) > len(other.X):
-                return False
+            if(len(self.X) == len(other.X)):
+                return self.X < other.X
             else:
-                for i, j in zip(self.X, other.X):
-                    if i == j:
-                        continue
-                    else:
-                        return i < j
-    
+                return len(self.X) < len(other.X)
+
     def __gt__(self, other):
-        if self.X == other.X:
-            if len(self.A) > len(other.A):
-                return True
-            elif len(self.A) < len(other.A):
-                return False
+        if(self.X == other.X):
+            if(len(self.A) == len(other.A)):
+                return self.A < other.A
             else:
-                for i, j in zip(self.A, other.A):
-                    if i == j:
-                        continue
-                    else:
-                        return i < j
+                return len(self.A) < len(other.A)
         else:
-            if len(self.X) > len(other.X):
-                return True
-            elif len(self.X) < len(other.X):
-                return False
+            if(len(self.X) == len(other.X)):
+                return self.X > other.X
             else:
-                for i, j in zip(self.X, other.X):
-                    if i == j:
-                        continue
-                    else:
-                        return i > j
+                return len(self.X) > len(other.X)
+            
 
     def __eq__(self, other) -> bool:
         return self.X == other.X and self.A == other.A
+    
     
     def __str__(self) -> str:
         s = ""
