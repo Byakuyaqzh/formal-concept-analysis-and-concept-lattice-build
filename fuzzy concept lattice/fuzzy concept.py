@@ -2,11 +2,6 @@ class concept:
     def __init__(self, x, y):
         self.X = x
         self.Y = y
-
-    def __eq__(self, other):
-        if isinstance(other, concept):
-            return self.X == other.X and self.Y == other.Y
-        return False
     
     def __lt__(self, other):
         if isinstance(other, concept):
@@ -24,33 +19,32 @@ class concept:
             else:
                 return True if self.X > other.X else False
         return False
-
+    
+    def __eq__(self, other):
+        if isinstance(other, concept):
+            return self.X == other.X and self.Y == other.Y
+        return False
+    
+    def __str__(self) -> str:
+        s = ""
+        s += "("
+        for x in self.X:
+            s += "  " + str(x)
+        s += "  ),  ("
+        for y in self.Y:
+            s += "  " + str(y)
+        s += "  )"
+        return s
 
 
 #  输出一个序列中的所有概念
 def output_concept_list(all_cpt):
-    n = len(all_cpt)
-    for i in range(n):
-        output_concept(all_cpt[i], i)
+    cnt = 1
+    for cpt in all_cpt:
+        print(cnt, end=" -> \t")
+        print(cpt)
+        cnt += 1
     print()
-
-
-#  输出一个概念
-def output_concept(cpt, e=-1):
-    x_size = len(cpt.X)
-    y_size = len(cpt.Y)
-    if -1 < e < 9:
-        print(e + 1, end="  ")
-    elif e > 8:
-        print(e + 1, end=" ")
-    print("-> [  ", end="")
-    #  输出
-    for i in range(x_size):
-        print(cpt.X[i], end="  ")
-    print("],  [  ", end="")
-    for i in range(y_size):
-        print(cpt.Y[i], end="  ")
-    print("]")
 
 
 #  第一个值是对象个数， 第二个值： 3 ->  [0, 0.5, 1],  5 -> [0, 0.25, 0.5, 0.75, 1]
@@ -61,6 +55,8 @@ def get_table(t):
         val = [0, 0.5, 1]
     if t == 5:
         val = [0, 0.25, 0.5, 0.75, 1]
+    if t == 9:
+        val = [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1]
 
     for i in range(t):
         for j in range(t):
@@ -75,21 +71,19 @@ def get_all_sort_x(n, t):
         val = [0, 0.5, 1]
     if t == 5:
         val = [0, 0.25, 0.5, 0.75, 1]
+    if t == 9:
+        val = [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1]
     ans = []
-
-    #  d: 深度   j: 3/5个值   tmp: 当前结果
-    def dfs(d, tmp):
-        if d == n:
-            ans.append(tmp.copy())
+    cur = []
+    def dfs(i):
+        if i == n:
+            ans.append(cur.copy())
             return
-        for j in range(t):
-            tmp[d] = val[j]
-            dfs(d + 1, tmp)
-
-    for i in range(t):
-        first = [0 for _ in range(n)]
-        first[0] = val[i]
-        dfs(1, first)
+        for x in val:
+            cur.append(x)
+            dfs(i+1)
+            cur.pop()
+    dfs(0)
     return ans
 
 
@@ -99,6 +93,8 @@ def judge_xy(table, x, y):
         return table[int(x * 2)][int(y * 2)]
     if len(table) == 5:
         return table[int(x * 4)][int(y * 4)]
+    if len(table) == 9:
+        return table[int(x * 6)][int(y * 6)]
 
 
 #  获取所有概念
@@ -124,7 +120,7 @@ def get_all_cpt(table, a, x_list):
         all_cpt.append(cpt)
 
         #  去重 
-        #  插入总集
+        # #  插入总集
         # sizeof_all = len(all_cpt)
         # #  插入第一个
         # if sizeof_all == 0:
@@ -148,14 +144,12 @@ def get_all_cpt(table, a, x_list):
 
 def main():
     a = [
-        #  test
         [1, 0, 0.5],
         [0.5, 0, 1],
         [0, 0.5, 1],
-
     ]
     t = 3
-    #  t 代表模糊值的种类    3 ->  [0, 0.5, 1]  ,  5 -> [0, 0.25, 0.5, 0.75, 1]
+    #  t 代表模糊分析的等级    3 ->  [0, 0.5, 1]  ,  5 -> [0, 0.25, 0.5, 0.75, 1]
 
     n = len(a)
 
