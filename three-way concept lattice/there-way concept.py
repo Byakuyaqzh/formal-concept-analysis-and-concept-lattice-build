@@ -1,12 +1,13 @@
 
 
 class concept:
-    def __init__(self, x, a):
+    def __init__(self, x, a, b):
         self.X = x
         self.A = a
+        self.B = b
         self.father = []
         self.children = []
-
+        
     #  这里的排序并不是偏序关系
     def __lt__(self, other):
         if isinstance(other, concept):
@@ -35,33 +36,39 @@ class concept:
                 else:
                     return len(self.X) > len(other.X)
         return False
-        
-    def __eq__(self, other) -> bool:
+
+    def __eq__(self, other):
         if isinstance(other, concept):
-            return self.X == other.X and self.A == other.A
+            return self.X == other.X and self.A == other.A and self.B == other.B
         return False
-    
-    
-    def __str__(self) -> str:
+
+    def __str__(self):
         s = ""
         x_size = len(self.X)
         a_size = len(self.A)
+        b_size = len(self.B)
         s += "("
         if x_size == 0:
             s += " Ø"
         else:
             for j in range(x_size):
                 s += " " + str(self.X[j])
-        s += " , "
+        s += " , ("
         if a_size == 0:
             s += " Ø"
         else:
             for j in range(a_size):
                 s += " " + str(self.A[j])
-        s += " )"
+        s += " ,"
+        if b_size == 0:
+            s += " Ø"
+        else:
+            for j in range(b_size):
+                s += " " + str(self.B[j])
+        s += " ) )"
         return s
-    
-    
+
+
 #  判断list1是否被list2包含
 def is_sub(list1: list, list2: list) -> bool:
     n1, n2 = len(list1), len(list2)
@@ -80,7 +87,7 @@ def is_sub(list1: list, list2: list) -> bool:
 
 
 #  并集
-def union(a: list, b: list) -> list:
+def union(a, b):
     len_1 = len(a)
     len_2 = len(b)
     res = []
@@ -107,7 +114,7 @@ def union(a: list, b: list) -> list:
 
 
 #  交集
-def intersection(a: list, b: list) -> list:
+def intersection(a, b):
     len_1 = len(a)
     len_2 = len(b)
     res: list = []
@@ -126,7 +133,7 @@ def intersection(a: list, b: list) -> list:
 
 
 #  判断序列是否存在交集
-def determine_intersection(a: list, b: list) -> bool:
+def determine_intersection(a, b):
     len_1 = len(a)
     len_2 = len(b)
     i = 0
@@ -147,12 +154,31 @@ def print_list_of_concept(cpt: list) -> None:
         print(c)
 
 
+# #  更新概念的对象
+# def update_concept(cpt: concept, b: list) -> concept:
+#     cpt.X = b
+#     return cpt
+
+
+# #  合并概念
+# def combine_concept(a: concept, b: concept) -> concept:
+#     return concept(union(a.X, b.X), intersection(a.A, b.A), intersection(a.B, b.B))
+
+
+
+#  输出一个序列中的所有概念
+def out_concept_in_list(cpt: list):
+    for c in cpt:
+        print(c)
+
+
+
 #  以显眼的方式输出二维数组
-def out_two_dimensional_array(a: list[list]) -> None:
+def out_two_dimensional_array(a):
     n = len(a)
     m = len(a[0])
     for i in range(n):
-        print(" |-->    ", end="")
+        print(" |-->     ", end="")
         for j in range(m):
             print(a[i][j], end="  ")
         print()
@@ -184,11 +210,13 @@ def get_base_concept(a, e1 = 1, e2 = 'a', digit = False) -> list:
             return o
     base_cpt = []
     for i in range(n):
-        cpt = concept([], [])
+        cpt = concept([], [], [])
         cpt.X.append(i + e1)
         for j in range(m):
             if a[i][j] == 1:
                 cpt.A.append(get_attribute_name(j + int(e2)))
+            else:
+                cpt.B.append(get_attribute_name(j + int(e2)))
         base_cpt.append(cpt)
     return base_cpt
 
@@ -213,7 +241,7 @@ def get_all_concept(base_cpt: list, e1 = 1, e2 = 'a', digit = False) -> list:
     if len(attribute_list) == 0:
         top_flg = True
     def get_top_concept():
-        top_cpt = concept([], [])
+        top_cpt = concept([], [], [])
         for cpt in base_cpt:
             top_cpt.X = union(top_cpt.X, cpt.X)
         return top_cpt
@@ -221,10 +249,11 @@ def get_all_concept(base_cpt: list, e1 = 1, e2 = 'a', digit = False) -> list:
     #  使用两个数组交替存放上一轮的结果
     all_cpt = [[], []]
 
-    #  首先插入底部的（phi，all）元素和第一个元素
-    bottom_cpt = concept([], [])
+    # 首先插入底部的（phi，（all, all））元素和第一个元素
+    bottom_cpt = concept([], [], [])
     for i in range(num_of_cpt):
         bottom_cpt.A = union(bottom_cpt.A, base_cpt[i].A)
+        bottom_cpt.B = union(bottom_cpt.B, base_cpt[i].B)
     all_cpt[0].append(bottom_cpt)
     all_cpt[0].append(base_cpt[0])
 
@@ -245,37 +274,35 @@ def get_all_concept(base_cpt: list, e1 = 1, e2 = 'a', digit = False) -> list:
             #  当前正在访问的概念
             cpt = all_cpt[cur][j]
             #  判断属性是否存在交集
-            if determine_intersection(insert_cpt.A, cpt.A):
+            if determine_intersection(insert_cpt.A, cpt.A) or determine_intersection(insert_cpt.B, cpt.B):
                 #  存在交集，将两者合并得到新概念
-                new_cpt = concept(union(cpt.X, insert_cpt.X), intersection(cpt.A, insert_cpt.A))
+                new_cpt = concept(union(cpt.X, insert_cpt.X), intersection(cpt.A, insert_cpt.A), intersection(cpt.B, insert_cpt.B))
                 #  遍历已生成的所有概念，判断是否存在一个概念，其内涵等于new_cpt的内涵    有 ：True  没有 ： False
-                flg = False
-                size_of_L = len(all_cpt[res])
-                for k in range(size_of_L):
-                    if new_cpt.A == all_cpt[res][k].A:
-                        #  若有，更新这个概念的对象
+                flg: bool = False
+                sizeof_L = len(all_cpt[res])
+                for k in range(sizeof_L):
+                    if new_cpt.A == all_cpt[res][k].A and new_cpt.B == all_cpt[res][k].B:
+                        #  若有，更新这个概念
                         if all_cpt[res][k].X != new_cpt.X:
                             all_cpt[res][k].X = union(all_cpt[res][k].X, new_cpt.X)
                         #  保存当前访问的概念
-                        if all_cpt[res][k].A != cpt.A:
+                        if all_cpt[res][k].A != cpt.A or all_cpt[res][k].B != cpt.B:
                             all_cpt[res].append(cpt)
                         flg = True
                         break
-                #  end for
-                #  若没有，则插入合并后的概念
+                # end for
+                #  若没有，插入合并后的概念
                 if not flg:
                     all_cpt[res].append(new_cpt)
                     #  保存当前访问的概念
-                    if new_cpt.A != cpt.A:
+                    if new_cpt.A != cpt.A or new_cpt.B != cpt.B:
                         all_cpt[res].append(cpt)
-            # end if
-            #  不存在交集
             else:
+                #  不存在交集
                 all_cpt[res].append(cpt)
-        #  end for
         #  本次循环结束，清空R，用于下次存放结果
         all_cpt[cur].clear()
-    #  end for
+    # end for
 
     #  检查顶部概念
     if top_flg:
@@ -284,7 +311,6 @@ def get_all_concept(base_cpt: list, e1 = 1, e2 = 'a', digit = False) -> list:
     all_cpt[res].sort()
 
     return all_cpt[res]
-
 
 #  建立父子关系
 def lattice_build(all_cpt: list):
