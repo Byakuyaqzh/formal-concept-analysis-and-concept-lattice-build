@@ -5,16 +5,15 @@ class concept:
     
     def __lt__(self, other):
         if isinstance(other, concept):
-            if(self.X == other.X):
+            if self.X == other.X:
                 return True if self.Y > other.Y else False
             else:
                 return True if self.X < other.X else False
         return False
-        
 
     def __gt__(self, other):
         if isinstance(other, concept):
-            if(self.X == other.X):
+            if self.X == other.X:
                 return True if self.Y < other.Y else False
             else:
                 return True if self.X > other.X else False
