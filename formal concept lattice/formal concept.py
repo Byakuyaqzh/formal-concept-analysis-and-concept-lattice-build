@@ -305,7 +305,7 @@ def lattice_build(all_cpt: list):
 
 def main():
 
-    #  输入二位数组
+    #  输入二维数组
     a = [
          [1, 1, 0, 1, 1],
          [1, 1, 1, 0, 0],
@@ -336,3 +336,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
